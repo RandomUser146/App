@@ -20,34 +20,32 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 
-public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
+public class PendingTasksAdapter extends RecyclerView.Adapter<PendingTasksAdapter.MyViewHolder> {
 
-    ArrayList<TaskObject> myValues;
+    public ArrayList<TaskObject> myValues;
 
-    public TaskAdapter(ArrayList<TaskObject> myValues){
+    public PendingTasksAdapter(ArrayList<TaskObject> myValues) {
         this.myValues = myValues;
     }
 
     @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View inflater = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_card,parent,false);
-        return new TaskAdapter.MyViewHolder(inflater);
+    public PendingTasksAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View inflater = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_card, parent, false);
+        return new PendingTasksAdapter.MyViewHolder(inflater);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PendingTasksAdapter.MyViewHolder holder, int position) {
         holder.bind(myValues.get(position));
     }
 
@@ -58,7 +56,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
 
     static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tName,tAmount,tTime,tStatus;
+        private TextView tName, tAmount, tTime, tStatus;
         private MaterialButton cancelButton;
         private long scheduledTime = -100;
 
@@ -69,16 +67,17 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
             tTime = itemView.findViewById(R.id.taskTime);
             tStatus = itemView.findViewById(R.id.status);
             cancelButton = itemView.findViewById(R.id.cancel_button);
-            cancelButton.setOnClickListener(v->{
+            cancelButton.setOnClickListener(v -> {
                 Toast.makeText(cancelButton.getContext(), "Cancel", Toast.LENGTH_SHORT).show();
-                ArrayList<TaskObject> values = new ArrayList<>();
-                DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference(Constants.id + ":taskQueue" + "/");
+                DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference(Constants.id + ":newTasks" + "/");
                 DatabaseReference cancelledTasks = FirebaseDatabase.getInstance().getReference(Constants.id + ":cancelledTasks" + "/");
                 taskRef.get().addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {Log.e("firebase", "Error getting data", task.getException());}
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    }
                     else {
                         Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                        ArrayList<TaskObject> values1 = new ArrayList<>();
+                        ArrayList<TaskObject> values = new ArrayList<>();
                         ArrayList<TaskObject> removedValues = new ArrayList<>();
                         ArrayList<Object> value = (ArrayList<Object>) task.getResult().getValue();
                         if(value == null) return;
@@ -102,18 +101,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
                                 }
                             }
                             if(scheduledTime != taskItem.scheduledTime){
-                                values1.add(taskItem);
+                                values.add(taskItem);
                             }else{
                                 Log.e("firebase duplicate", "sc :"+scheduledTime + " sc task :" + taskItem.scheduledTime);
                                 removedValues.add(taskItem);
                             }
-                            //Log.e("firebase", "sc :"+scheduledTime + " sc task :" + taskItem.scheduledTime);
                         }
-                        taskRef.setValue(values1);
+                        taskRef.setValue(values);
                         cancelledTasks.get().addOnCompleteListener(task1 -> {
                             if(task1.isSuccessful()){
                                 ArrayList<Object> result = (ArrayList<Object>) task1.getResult().getValue();
                                 if(result == null) {
+                                    Log.e("firebase cancel", removedValues.toString());
                                     cancelledTasks.setValue(removedValues);
                                     return;
                                 }
@@ -125,7 +124,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
                                             taskItem.amount = (int) Long.parseLong(String.valueOf(entry.getValue()));
                                         } else if (Objects.equals(entry.getKey(), "scheduledTime")) {
                                             taskItem.scheduledTime = ((Long) entry.getValue());
-                                            //Log.e("firebase",  "sc task sched:" + taskItem.scheduledTime);
                                         } else if (Objects.equals(entry.getKey(), "task")) {
                                             taskItem.task = Integer.parseInt(String.valueOf(entry.getValue()));
                                         } else if(Objects.equals(entry.getKey(), "taskid")){
@@ -136,6 +134,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
                                     }
                                     removedValues.add(taskItem);
                                 }
+                                Log.e("firebase cancel", removedValues.toString());
                                 cancelledTasks.setValue(removedValues);
                             }
                         });
@@ -146,15 +145,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
 
         public void bind(TaskObject task) {
             tName.setText(task.task == 0 ? "Irrigation" : "Fertilization");
-            final String amount = "Amount = "+task.amount+" Liters";
+            final String amount = "Amount = " + task.amount + " Liters";
             tAmount.setText(amount);
             Instant instant = Instant.ofEpochMilli(task.scheduledTime * 1000);
             scheduledTime = task.scheduledTime;
+            Log.e("timestampBind", "scheduledTime :"+scheduledTime);
             ZoneId zoneId = ZoneId.systemDefault(); // Use the system default time zone
             LocalDate localDate = instant.atZone(zoneId).toLocalDate();
-            final String time = "Scheduled Date = "+ localDate.toString();
+            final String time = "Scheduled Date = " + localDate.toString();
             tTime.setText(time);
-            final String status = "Status = "+Constants.taskStatus[task.taskStatus];
+            final String status = "Status = " + Constants.taskStatus[task.taskStatus];
             tStatus.setText(status);
         }
     }

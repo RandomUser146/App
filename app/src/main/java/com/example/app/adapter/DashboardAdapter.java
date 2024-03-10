@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.app.fragments.PendingTasks;
 import com.example.app.fragments.StatusFragment;
 import com.example.app.fragments.TasksFragment;
 import com.example.app.fragments.VitalsFragment;
@@ -33,6 +34,10 @@ public class DashboardAdapter extends FragmentStateAdapter {
             }
             case 2: {
                 Log.e("DashboardAdapter", "createFragment: " + position);
+                return new PendingTasks();
+            }
+            case 3: {
+                Log.e("DashboardAdapter", "createFragment: " + position);
                 return new StatusFragment();
             }
         }
@@ -42,6 +47,6 @@ public class DashboardAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 3;
+        return 4;
     }
 }

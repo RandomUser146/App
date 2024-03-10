@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:cardCornerRadius="20dp"
+        android:padding="10dp"
+        android:elevation="@dimen/cardElevation">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="10dp">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="System Name"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/system_loc"
+                style="@style/MaterialAlertDialog.Material3.Title.Text"
+                android:id="@+id/system_name"
+                android:layout_margin="10dp"
+                />
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="System Location"
+                app:layout_constraintTop_toBottomOf="@id/system_name"
+                app:layout_constraintBottom_toTopOf="@id/system_active"
+                style="@style/MaterialAlertDialog.Material3.Body.Text"
+                android:id="@+id/system_loc"
+                android:layout_margin="10dp"
+                />
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="System Status : Active"
+                app:layout_constraintTop_toBottomOf="@id/system_loc"
+                app:layout_constraintBottom_toBottomOf="parent"
+                style="@style/MaterialAlertDialog.Material3.Body.Text"
+                android:id="@+id/system_active"
+                android:layout_margin="10dp"
+                />
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@id/system_name"
+                app:layout_constraintBottom_toBottomOf="@id/system_active"
+                android:id="@+id/select"
+                style="@style/ThemeOverlay.Material3.Button.ElevatedButton"
+                android:text="@string/see_details"
+                android:layout_margin="10dp"
+                app:icon="@drawable/baseline_arrow_forward_24"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

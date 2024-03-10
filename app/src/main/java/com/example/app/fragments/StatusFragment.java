@@ -63,7 +63,7 @@ public class StatusFragment extends Fragment {
             }
         });
 
-        binding.name.setText("SID : id12345678");
+        binding.name.setText("SID :"+Constants.id);
         return binding.getRoot();
     }
 }
