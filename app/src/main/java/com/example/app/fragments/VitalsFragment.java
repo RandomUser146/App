@@ -467,17 +467,18 @@ public class VitalsFragment extends Fragment {
         FirebaseDatabase.getInstance().getReference("/" + Constants.id + ":rain").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String val;
+                String val = "";
                 if (snapshot.exists()) {
                     val = String.valueOf((Double) snapshot.getValue(Double.class));
                 } else {
                     val = "";
                 }
+                String finalVal = val;
                 requireActivity().runOnUiThread(() -> {
-                    binding.t2.setText(val + "mm");
+                    final String t = finalVal + "mm";
+                    binding.t2.setText(t);
                 });
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 

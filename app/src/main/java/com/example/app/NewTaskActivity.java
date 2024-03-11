@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -42,7 +43,7 @@ public class NewTaskActivity extends AppCompatActivity {
     ActivityNewTaskBinding binding;
 
     int taskTypeNumber = -1;
-    long timestamp;
+    long timestamp = -1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,9 +51,28 @@ public class NewTaskActivity extends AppCompatActivity {
         final String[] type = {"Irrigation","Fertilization"};
         ArrayAdapter<String> taskType = new ArrayAdapter<>(getApplicationContext(),R.layout.item,type);
         binding.taskTypeField.setAdapter(taskType);
+        ArrayAdapter<String> fertilzers = new ArrayAdapter<>(getApplicationContext(),R.layout.item,Constants.fertilizers);
+        binding.fertilizerTypeField.setAdapter(fertilzers);
         binding.a.setOnClickListener(v -> {
             //String taskName = binding.taskNameField.getText().toString();
-            int taskAmount = Integer.parseInt(binding.amountField.getText().toString());
+            String taskA = binding.amountField.getText().toString();
+            if(taskA.equals("")){
+                Toast.makeText(NewTaskActivity.this, "Please enter the amount", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(taskTypeNumber == -1){
+                Toast.makeText(NewTaskActivity.this, "Please select the task type", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(timestamp == -1){
+                Toast.makeText(NewTaskActivity.this, "Please enter the date", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if(taskTypeNumber == 0){
+                taskA = String.valueOf(Integer.parseInt(taskA) * 60);
+            }
+            int taskAmount = Integer.parseInt(taskA);
             TaskObject taskObject = new TaskObject((int) System.currentTimeMillis(),taskAmount,timestamp,taskTypeNumber);
             SharedPreferences sh = getSharedPreferences("MySharedPref", Context.MODE_PRIVATE);
             String mail = sh.getString("mail", "");
@@ -110,7 +130,16 @@ public class NewTaskActivity extends AppCompatActivity {
 
         binding.taskTypeField.setOnItemClickListener(((parent, view, position, id) -> {
             taskTypeNumber = position;
-            Log.e("TaskType", String.valueOf(position));
+            if(position == 0){
+                binding.fertilizerType.setVisibility(View.GONE);
+                binding.amountField.setHint("Enter the pumping duration in minutes");
+            }else if(position == 1){
+                binding.fertilizerType.setVisibility(View.VISIBLE);
+                binding.amountField.setHint("Enter the Fertilizer in Kgs");
+            }else{
+                binding.fertilizerType.setVisibility(View.GONE);
+                binding.amountField.setHint("Enter the pumping duration in minutes");
+            }
         }));
         setContentView(binding.getRoot());
     }
